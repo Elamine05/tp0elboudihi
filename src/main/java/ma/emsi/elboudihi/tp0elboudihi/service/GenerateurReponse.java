@@ -11,27 +11,48 @@ import java.util.Locale;
  * Un modificateur de question prend en entrée une question et retourne
  * la question modifiée.
  */
-@Dependent // Portée CDI pour rendre la classe injectable par CDI dans les autres classes.
-// Portée Dependent : l'instance sera supprimée quand la classe qui l'a injectée sera supprimée.
-public class GenerateurReponse implements Serializable { // Serializable car CDI peut mettre l'instance en mémoire secondaire.
+@Dependent
+public class GenerateurReponse implements Serializable {
+
     private boolean roleSystemeAffiche = false;
 
     /**
-     * Génère une réponse à une question.
-     * @param question La question à modifier.
-     * @param roleSysteme Le rôle système à utiliser pour la modification de la question.
-     * @return La question modifiée : le rôle système en majuscule au début de la question, s'il n'est pas null,
-     * suivi d'un saut de ligne,
-     * puis la question en minuscule, le tout entouré de "||".
+     * Génère une réponse en analysant le texte saisi.
+     * Traitement personnel pour le bonus du TP0.
      */
     public String genererReponse(String question, String roleSysteme) {
+
         String resultat = "||";
+
+        // Conserver le rôle système au début de la première réponse.
         if (!this.roleSystemeAffiche && roleSysteme != null) {
-            // Ajouter le rôle système en majuscule au début du résultat, suivi d'un saut de ligne.
             resultat += roleSysteme.toUpperCase(Locale.FRENCH) + "\n";
             this.roleSystemeAffiche = true;
         }
-        resultat += question.toLowerCase(Locale.FRENCH) + "||";
+
+        // Préparation du texte.
+        String texte = question.trim();
+        String[] mots = texte.split("\\s+");
+
+        // Rechercher le mot le plus long.
+        String motPlusLong = "";
+
+        for (String mot : mots) {
+            String motNettoye = mot.replaceAll("[^\\p{L}\\p{N}]", "");
+
+            if (motNettoye.length() > motPlusLong.length()) {
+                motPlusLong = motNettoye;
+            }
+        }
+
+        // Construire la réponse.
+        resultat += "ANALYSE DU TEXTE\n";
+        resultat += "Nombre de mots : " + mots.length + "\n";
+        resultat += "Nombre de caractères : " + texte.length() + "\n";
+        resultat += "Mot le plus long : " + motPlusLong + "\n";
+
+        resultat += "||";
+
         return resultat;
     }
 }
